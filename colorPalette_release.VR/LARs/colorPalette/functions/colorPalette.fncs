@@ -1,0 +1,12 @@
+
+
+class colorPalette
+{
+	tag = "LARs";
+	class colorPalette
+	{
+		file = "LARs\colorPalette\functions";
+		
+		class colorPalette {};
+	};
+};

@@ -1,0 +1,9 @@
+﻿
+
+#include "LARs\colorPalette\ui\baseDefines.hpp"
+#include "LARs\colorPalette\ui\colorPalette.gui"
+
+class CfgFunctions
+{
+	#include "LARs\colorPalette\functions\colorPalette.fncs"
+};

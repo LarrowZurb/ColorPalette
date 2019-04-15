@@ -1,0 +1,411 @@
+﻿
+#include "colorPalette_sizes.hpp"
+#include "colorPalette_IDCs.hpp"
+
+
+//COLOR BARS//0.0375
+__EXEC( numColorBars = 0; );
+#define COLORBAR( BAR_NAME, IDC_NUM, BAR_TEXTURE, MAX_RANGE ) \
+	class BAR_NAME##_Frame: ctrlStaticFrame \
+	{ \
+		idc = -1; \
+ \
+		x = GRIDX( 13 ) - pixelW; \
+		y = __EVAL( GRIDY( 1 ) + ( numColorBars * GRIDY( 2 ))) - pixelH; \
+		w = GRIDX( 9 ) + ( pixelW * 3 ); \
+		h = GRIDY( 1 ) + ( pixelH * 3 ); \
+ \
+	}; \
+ \
+	class BAR_NAME##_Bar: ctrlStaticPicture \
+	{ \
+		idc = IDC_NUM + CP_BAR_TEXTURE; \
+ \
+		x = GRIDX( 13 ); \
+		y = __EVAL( GRIDY( 1 ) + ( numColorBars * GRIDY( 2 ))); \
+		w = GRIDX( 9 ); \
+		h = GRIDY( 1 ); \
+ \
+		text = BAR_TEXTURE; \
+ \
+	}; \
+ \
+	class BAR_NAME##_mouseArea: ctrlActivePicture \
+	{ \
+		idc = IDC_NUM; \
+ \
+		x = GRIDX( 13 ); \
+		y = __EVAL( GRIDY( 1 ) + ( numColorBars * GRIDY( 2 ))); \
+		w = GRIDX( 9 ); \
+		h = GRIDY( 1 ); \
+ \
+		text = "#(rgb,8,8,3)color(0,0,0,0)"; \
+ \
+	}; \
+ \
+	class BAR_NAME##_Slider: ctrlSliderH \
+	{ \
+		idc = IDC_NUM + CP_BAR_SLIDER; \
+ \
+		x = GRIDX( 13 ) - BAR_SLIDER_OFFSET_X; \
+		y = __EVAL( GRIDY( 2 ) + ( numColorBars * GRIDY( 2 ))); \
+		w = GRIDX( 9 ) + ( BAR_SLIDER_OFFSET_X * 2 ); \
+		h = GRIDY( 0.5 ); \
+ \
+		color[] = { 0.2, 0.2, 0.2, 1 }; \
+		colorActive[] = { 1, 1, 1, 1 }; \
+		sliderRange[] = {0,MAX_RANGE}; \
+		sliderPosition = 0; \
+		lineSize = 1; \
+		pageSize = 1; \
+ \
+	}; \
+ \
+	class BAR_NAME##_Edit: ctrlEdit \
+	{ \
+		idc = IDC_NUM + CP_BAR_EDIT; \
+ \
+		x = GRIDX( 22.5 ); \
+		y = __EVAL( GRIDY( 1 ) + ( numColorBars * GRIDY( 2 ))); \
+		w = GRIDX( 2 ); \
+		h = GRIDY( 1 ); \
+ \
+		style = ST_CENTER; \
+		sizeEx = UITXTSIZE( 2 ); \
+ \
+	}; \
+ \
+	class BAR_NAME##_Plus: ctrlButton \
+	{ \
+		idc = IDC_NUM + CP_BAR_PLUS; \
+ \
+		x = GRIDX( 24.5 ) ; \
+		y = __EVAL( GRIDY( 1 ) + ( numColorBars * GRIDY( 2 ))); \
+		w = GRIDX( 0.5 ); \
+		h = GRIDY( 0.5 ); \
+ \
+		text = "+"; \
+		style = ST_CENTER; \
+		colorBackground[] = {0.1,0.1,0.1,1}; \
+		colorBackgroundDisabled[] = {0,0,0,0.5}; \
+		colorBackgroundActive[] = {0.15,0.15,0.15,1}; \
+		colorFocused[] = {0.1,0.1,0.1,1}; \
+		offsetPressedX = 0; \
+		offsetPressedY = 0; \
+ \
+	}; \
+ \
+	class BAR_NAME##_Minus: BAR_NAME##_plus \
+	{ \
+		idc = IDC_NUM + CP_BAR_MINUS; \
+ \
+		x = GRIDX( 24.5 ) ; \
+		y = __EVAL( GRIDY( 1.5 ) + ( numColorBars * GRIDY( 2 ))); \
+		w = GRIDX( 0.5 ); \
+		h = GRIDY( 0.5 ); \
+ \
+		text = "-"; \
+ \
+	}; \
+	__EXEC( numColorBars = numColorBars + 1; )
+
+
+
+
+//Save Buttons
+#define SAVE_BUTTON( SAVE_NAME, IDC_NUM, ROW, COL ) \
+	class SAVE_NAME##_BtnColor: ctrlStaticPictureKeepAspect \
+	{ \
+		idc = IDC_NUM; \
+ \
+		x = ( GRIDX( 0.875 ) + ( COL * GRIDX( 2 ))); \
+		y = ( GRIDY( 14.5 ) + ( ROW * GRIDY( 2 ))); \
+		w = GRIDX( 1.5 ); \
+		h = GRIDY( 1.5 ); \
+ \
+		text = "#(rgb,8,8,3)color(1,1,1,1)"; \
+	}; \
+	class SAVE_NAME##_Btn: ctrlActivePictureKeepAspect \
+	{ \
+		idc = IDC_NUM + 1; \
+ \
+		x = ( GRIDX( 0.875 ) + ( COL * GRIDX( 2 ))); \
+		y = ( GRIDY( 14.5 ) + ( ROW * GRIDY( 2 ))); \
+		w = GRIDX( 1.5 ); \
+		h = GRIDY( 1.5 ); \
+ \
+		text = "LARs\colorPalette\ui\images\savedColorButton.paa"; \
+		color[] = { 1, 1, 1, 1 }; \
+		colorActive[] = { 1, 1, 1, 1 }; \
+	};
+
+
+
+class colorPalette
+{
+	idd = 20000;
+	
+	x = safeZoneX;
+	y = safeZoneY;
+	w = safeZoneWAbs;
+	h = safeZoneH;
+	
+	class Controls
+	{
+		
+		class colorPalette : ctrlControlsGroupNoScrollbars
+		{
+			idc = CP_IDC;
+			
+			x = 0;
+			y = 0;
+			w = GRIDX( MAIN_WIDTH );
+			h = GRIDY( MAIN_HEIGHT );
+	
+			//onLoad = "[ 'INIT', _this ] spawn LARs_fnc_colorPalette";
+			//onUnload = "[ 'VARS', 'SAVE' ] call LARs_fnc_colorPalette";
+	
+			class controls
+			{
+	
+				//*****
+				//Background
+				//*****
+	
+				class main_background: ctrlStaticPicture
+				{
+					idc = -1;
+	
+					x = 0;
+					y = 0;
+					w = GRIDX( MAIN_WIDTH );
+					h = GRIDY( MAIN_HEIGHT );
+	
+					text = "#(argb,8,8,3)color(0.2,0.2,0.2,1)";
+				};
+	
+				class main_frame: ctrlStaticFrame
+				{
+					idc = -1;
+	
+					x = 0;
+					y = 0;
+					w = GRIDX( MAIN_WIDTH );
+					h = GRIDY( MAIN_HEIGHT );
+	
+				};
+	
+	
+				//*****
+				//Palette
+				//*****
+	
+				class palette_frame: ctrlStaticFrame
+				{
+					idc = -1;
+	
+					x = GRIDX( 1 ) - pixelW;
+					y = GRIDY( 1 ) - pixelH;
+					w = GRIDX( 11 ) + ( pixelW * 3 );
+					h = GRIDY( 11 ) + ( pixelH * 3 );
+	
+				};
+	
+				class palette_white: ctrlStaticPictureKeepAspect
+				{
+					idc = -1;
+	
+					x = GRIDX( 1 );
+					y = GRIDY( 1 );
+					w = GRIDX( 11 );
+					h = GRIDY( 11 );
+	
+					shadow = 0;
+					colorText[] = { 1, 1, 1, 1 };
+					text = "LARs\colorPalette\ui\images\White.paa";
+				};
+	
+				class palette_color: ctrlStaticPictureKeepAspect
+				{
+					idc = CP_PALETTE;
+	
+					x = GRIDX( 1 );
+					y = GRIDY( 1 );
+					w = GRIDX( 11 );
+					h = GRIDY( 11 );
+	
+					shadow = 0;
+					text = "LARs\colorPalette\ui\images\Value.paa";
+				};
+	
+				class palette_grade: ctrlStaticPictureKeepAspect
+				{
+					idc = -1;
+	
+					x = GRIDX( 1 );
+					y = GRIDY( 1 );
+					w = GRIDX( 11 );
+					h = GRIDY( 11 );
+	
+					shadow = 0;
+					text = "LARs\colorPalette\ui\images\Saturation.paa";
+	
+				};
+				
+				class palette_mouseArea: ctrlActivePictureKeepAspect
+				{
+					idc = CP_MOUSEAREA;
+	
+					x = GRIDX( 1 );
+					y = GRIDY( 1 );
+					w = GRIDX( 11 );
+					h = GRIDY( 11 );
+	
+					shadow = 0;
+					text = "#(rgb,8,8,3)color(0,0,0,0)";
+	
+				};
+	
+	
+				//*****
+				//Color Bars
+				//*****
+						//NAME,			IDC,			TEXTURE,										//MAX SLIDER RANGE
+				COLORBAR( HUE,			CP_BAR_HUE,		"LARs\colorPalette\ui\images\hue_range.paa",		360 );
+				COLORBAR( SATURATION,	CP_BAR_SAT,		"LARs\colorPalette\ui\images\blackWhiteRange.paa",	100 );
+				COLORBAR( VALUE,		CP_BAR_VAL,		"LARs\colorPalette\ui\images\blackWhiteRange.paa",	100 );
+				COLORBAR( RED,			CP_BAR_RED,		"LARs\colorPalette\ui\images\blackWhiteRange.paa",	255 );
+				COLORBAR( GREEN,		CP_BAR_GREEN,	"LARs\colorPalette\ui\images\blackWhiteRange.paa",	255 );
+				COLORBAR( BLUE,			CP_BAR_BLUE,	"LARs\colorPalette\ui\images\blackWhiteRange.paa",	255 );
+				COLORBAR( ALPHA,		CP_BAR_ALPHA,	"LARs\colorPalette\ui\images\blackWhiteRange.paa",	100 );
+	
+	
+				//*****
+				//Current Color
+				//*****
+	
+				class color_frame: ctrlStaticFrame
+				{
+					idc = -1;
+	
+					x = GRIDX( 2.5 ) - pixelW;
+					y = GRIDY( 13 ) - pixelH;
+					w = GRIDX( 9.5 ) + ( pixelW * 3 );
+					h = GRIDY( 1 ) + ( pixelH * 3 );
+					
+				};
+	
+				class color_barBackground: ctrlStaticPicture
+				{
+					idc = CP_COLOR_BCK;
+	
+					x = GRIDX( 2.5 );
+					y = GRIDY( 13 );
+					w = GRIDX( 9.5 );
+					h = GRIDY( 1 );
+	
+		//			text = "#(argb,8,8,3)color(1,1,1,1)";
+				};
+				
+				class color_bar: ctrlStaticPicture
+				{
+					idc = CP_COLOR;
+	
+					x = GRIDX( 2.5 );
+					y = GRIDY( 13 );
+					w = GRIDX( 9.5 );
+					h = GRIDY( 1 );
+	
+					text = "#(argb,8,8,3)color(1,1,1,1)";
+					tooltip = "Actual Current Colour"; //--- ToDo: Localize;
+				};
+	
+				class save_button: ctrlActivePictureKeepAspect
+				{
+					idc = CP_SAVE_BTN;
+	
+					x = GRIDX( 1 );
+					y = GRIDY( 13 );
+					w = GRIDX( 1 );
+					h = GRIDY( 1 );
+	
+					text = "\a3\3den\data\displays\display3den\toolbar\save_ca.paa";
+					color[] = { 1, 1, 1, 1 };
+					colorActive[] = { 1, 1, 1, 1 };
+					tooltip = "Save Colour"; //--- ToDo: Localize;
+	
+					onButtonClick = "[ 'PALETTE', 'SAVE_COLOR' ] call LARs_fnc_colorPalette";
+				};
+	
+	
+				//*****
+				//Saved colors
+				//*****
+							//NAME,	 IDC,	    ROW,COL
+				SAVE_BUTTON( SAVE0,	 CP_SAVE_0,	 0,	0 );
+				SAVE_BUTTON( SAVE1,	 CP_SAVE_1,	 0,	1 );
+				SAVE_BUTTON( SAVE2,	 CP_SAVE_2,	 0,	2 );
+				SAVE_BUTTON( SAVE3,	 CP_SAVE_3,	 0,	3 );
+				SAVE_BUTTON( SAVE4,	 CP_SAVE_4,	 0,	4 );
+				SAVE_BUTTON( SAVE5,	 CP_SAVE_5,	 0,	5 );
+				SAVE_BUTTON( SAVE6,	 CP_SAVE_6,	 1,	0 );
+				SAVE_BUTTON( SAVE7,	 CP_SAVE_7,	 1,	1 );
+				SAVE_BUTTON( SAVE8,	 CP_SAVE_8,	 1,	2 );
+				SAVE_BUTTON( SAVE9,	 CP_SAVE_9,	 1,	3 );
+				SAVE_BUTTON( SAVE10, CP_SAVE_10, 1,	4 );
+				SAVE_BUTTON( SAVE11, CP_SAVE_11, 1,	5 );
+	
+	
+				//*****
+				//Output
+				//*****
+				
+				class output_format: ctrlCombo
+				{
+					idc = CP_FORMAT;
+	
+					x = GRIDX( 13.5 );
+					y = GRIDY( 15.5 );
+					w = GRIDX( 10 );
+					h = GRIDY( 1 );
+	
+					sizeEx = UITXTSIZE( 2 );
+					
+				};
+				
+				class output: ctrlEdit
+				{
+					idc = CP_OUTPUT;
+	
+					x = GRIDX( 13.5 );
+					y = GRIDY( 17 );
+					w = GRIDX( 11.5 );
+					h = GRIDY( 1 );
+					
+					style = ST_LEFT;	// ST_RIGHT + ST_NO_RECT - weird overflow behaviour
+					tooltip = "Output"; //--- ToDo: Localize;
+					sizeEx = UITXTSIZE( 2 );
+	
+				};
+				
+				class output_clipOut: ctrlActivePictureKeepAspect
+				{
+					idc = CP_CTC;
+					x = GRIDX( 24 );
+					y = GRIDY( 15.5 );
+					w = GRIDX( 1 );
+					h = GRIDY( 1 );
+					
+					text = "\a3\3den\data\displays\display3den\toolbar\new_ca.paa";
+					color[] = { 1, 1, 1, 1 };
+					colorActive[] = { 1, 1, 1, 1 };
+					tooltip = "Copy to Clipboard";
+					
+					onButtonClick = "[ 'FORMAT', 'COPYTOCLIPBOARD' ] call LARs_fnc_colorPalette";
+				};
+	
+			};
+		};
+	};
+
+};
