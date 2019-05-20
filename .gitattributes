@@ -1,3 +1,6 @@
 # Auto detect text files and perform LF normalization
 * text=auto
-ui/* linguist-vendored
+*.gui linguist-language=sqf
+*.hpp linguist-language=sqf
+*.fncs linguist-language=sqf
+*.ext linguist-language=sqf
